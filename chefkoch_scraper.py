@@ -19,9 +19,10 @@ def build_menu_item_url(baseUrl, link_to_get_href_from):
 
 # Method that creates a text file by the name that is passed as the parameter
 def create_file(file_name):
-	return open(file_name + ".txt", "w", encoding="utf-8")
+	return open(file_name + ".txt", "w")
 
 
+# TO-DO: Refactoring
 def menueart_scraper():
 	# Initialize the driver
 	driver = initialize_driver()
@@ -39,8 +40,18 @@ def menueart_scraper():
 	menuart_li = ul.findChildren('li', class_='recipe-tag-list-item')[2]
 	menuart_links = menuart_li.find_all('a', class_='sg-pill')
 
+	# Create the text file that will contain the information about every single recipe
+	recepts_file = create_file("Rezepte")	
+
 	# Loop through the all the categories of Menueart
 	for link in menuart_links:
+
+		row_string = ''
+
+		# Get the name of the menuart category that we will get recipes from
+		category_name = link.text.strip()
+
+		row_string += "{}\t".format(category_name)
 
 		# Build the link for the category to scrape from
 		url = build_menu_item_url(baseUrl, link)
@@ -53,9 +64,6 @@ def menueart_scraper():
 
 		# Find all the items that the previously found list contains
 		search_list_items = search_list.find_all('li', class_='search-list-item')
-
-		# Create the text file that will contain the information about every single recipe
-		recepts_file = create_file("Rezepte")
 
 		# Now loop through the list of items and scrape data from every single recipe
 		for recipe in search_list_items:
@@ -70,17 +78,26 @@ def menueart_scraper():
 			# Get the title of the recipe
 			recipe_title = soup.find('h1', class_='page-title')
 
+			row_string += '{}\t'.format(recipe_title.text.strip())
+
 			# Get the table which contains all the ingredients
 			zutaten_table = soup.find('table', class_='incredients')
+
+			zutaten_string = ''
 
 			# Go through every single row of the table containing the ingredients
 			for row in zutaten_table.find_all('tr'):
 				# Get the required amount of each ingredient that is needed for a recipe
 				amount = row.find('td', class_='amount').text.strip()
-				print('amount: ' + amount)
 				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
-				print('ingredient name: ' + ingredient)
+				zutaten_string += '{} - {}, '.format(amount, ingredient)
+			print(zutaten_string)	
+			row_string += '{}\t'.format(zutaten_string)	
+			# Jump to new line after each recipe	
+			row_string += "\n"
+			# Write each recipe, row by row, into the previously created text file
+			recepts_file.write(row_string)	
 
 	# Close the driver			
 	driver.quit()		
