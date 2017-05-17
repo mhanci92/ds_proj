@@ -21,6 +21,9 @@ def build_menu_item_url(baseUrl, link_to_get_href_from):
 def create_file(file_name):
 	return open(file_name + ".txt", "w")
 
+def reset_string(string_to_reset):
+	string_to_reset = ''	
+
 
 # TO-DO: Refactoring
 def menueart_scraper():
@@ -51,8 +54,6 @@ def menueart_scraper():
 		# Get the name of the menuart category that we will get recipes from
 		category_name = link.text.strip()
 
-		row_string += "{}\t".format(category_name)
-
 		# Build the link for the category to scrape from
 		url = build_menu_item_url(baseUrl, link)
 
@@ -67,6 +68,7 @@ def menueart_scraper():
 
 		# Now loop through the list of items and scrape data from every single recipe
 		for recipe in search_list_items:
+			row_string += "{}\t".format(category_name)
 			recipe_a_link = recipe.findChild('a')
 			full_url_to_recipe = build_menu_item_url(baseUrl, recipe_a_link)
 
@@ -92,12 +94,12 @@ def menueart_scraper():
 				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
 				zutaten_string += '{} - {}, '.format(amount, ingredient)
-			print(zutaten_string)	
-			row_string += '{}\t'.format(zutaten_string)	
-			# Jump to new line after each recipe	
-			row_string += "\n"
+			row_string += '{}\n'.format(zutaten_string)	
+			#row_string += "\n"
 			# Write each recipe, row by row, into the previously created text file
-			recepts_file.write(row_string)	
+			recepts_file.write(row_string)
+			reset_string(row_string)
+			print(str(recipe_title.text.strip()) + " added to the text file!")
 
 	# Close the driver			
 	driver.quit()		
