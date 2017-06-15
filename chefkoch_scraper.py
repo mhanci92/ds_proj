@@ -9,7 +9,7 @@ def get_page_source(link_of_page, driver):
 
 # Method that initializes a driver and returns it
 def initialize_driver():
-	driver = webdriver.PhantomJS(executable_path=r'/Users/martinhanci/Documents/Web-Scraping/phantomjs-2.1.1-macosx/bin/phantomjs')
+	driver = webdriver.PhantomJS(executable_path=r'C:\Users\AnNa\Desktop\phantomjs')
 	return driver	
 
 # Simple Method that is supposed to combine the baseUrl with a href suffix of the second parameter
@@ -87,13 +87,19 @@ def menueart_scraper():
 
 			zutaten_string = ''
 
+			list1 = []
+
 			# Go through every single row of the table containing the ingredients
 			for row in zutaten_table.find_all('tr'):
 				# Get the required amount of each ingredient that is needed for a recipe
-				amount = row.find('td', class_='amount').text.strip()
+				#amount = row.find('td', class_='amount').text.strip()
 				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
-				zutaten_string += '{} - {}, '.format(amount, ingredient)
+				if ',' in ingredient:
+					list1.append(ingredient.split(','))
+					ingredient = list1[0]
+					del list1[:]
+				zutaten_string += '{}\t, '.format(ingredient)
 			row_string += '{}\n'.format(zutaten_string)	
 			#row_string += "\n"
 			# Write each recipe, row by row, into the previously created text file
@@ -101,6 +107,7 @@ def menueart_scraper():
 			reset_string(row_string)
 			print(str(recipe_title.text.strip()) + " added to the text file!")
 
+	recepts_file.close()
 	# Close the driver			
 	driver.quit()		
 
