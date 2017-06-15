@@ -96,10 +96,13 @@ def menueart_scraper():
 				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
 				if ',' in ingredient:
-					list1.append(ingredient.split(','))
+					list1 = ingredient.split(',')
+					#print('first element: '+ list1[0])
 					ingredient = list1[0]
 					del list1[:]
-				zutaten_string += '{}\t, '.format(ingredient)
+				#print('the ingredient '+ ingredient)
+				zutaten_string += '{}\t'.format(ingredient)
+				#print(zutaten_string)
 			row_string += '{}\n'.format(zutaten_string)	
 			#row_string += "\n"
 			# Write each recipe, row by row, into the previously created text file
