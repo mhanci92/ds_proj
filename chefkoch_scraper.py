@@ -1,5 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
+import re
 
 
 # Simple method that returns the page source of the link that is passed as a parameter
@@ -82,6 +83,12 @@ def menueart_scraper():
 
 			row_string += '{}\t'.format(recipe_title.text.strip())
 
+			# get the average rating for each recipe
+			rating = soup.find_all('span', class_='rating__average-rating')[0].text.strip()
+
+			# leave out the average symbol at the beginning of the rating
+			avg_rating = rating[1:]
+
 			# Get the table which contains all the ingredients
 			zutaten_table = soup.find('table', class_='incredients')
 
@@ -95,15 +102,23 @@ def menueart_scraper():
 				#amount = row.find('td', class_='amount').text.strip()
 				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
+				# check if the ingredient string is made up of more than the ingredient itself
 				if ',' in ingredient:
+					# split the string at the comma
 					list1 = ingredient.split(',')
 					#print('first element: '+ list1[0])
+					# get the first substring which contains the ingredient
 					ingredient = list1[0]
+					# empty the list to make space for the next 
 					del list1[:]
 				#print('the ingredient '+ ingredient)
 				zutaten_string += '{}\t'.format(ingredient)
 				#print(zutaten_string)
-			row_string += '{}\n'.format(zutaten_string)	
+			row_string += '{}'.format(zutaten_string)
+
+			# add the rating after all ingredients
+			row_string += '{}\n'.format(avg_rating)
+
 			#row_string += "\n"
 			# Write each recipe, row by row, into the previously created text file
 			recepts_file.write(row_string)
