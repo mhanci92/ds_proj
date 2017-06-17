@@ -1,6 +1,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import re
+import numpy as np
+
 
 
 # Simple method that returns the page source of the link that is passed as a parameter
@@ -25,6 +26,16 @@ def create_file(file_name):
 def reset_string(string_to_reset):
 	string_to_reset = ''	
 
+# hashmap (dictionary) of recipe names (keys) and corresponding ingredient sets (values).
+# it s going to be filled up in the menueart_scraper() function
+recipeHash = {}
+
+# a list of all (not unique) ingredients
+zutaten = ''
+
+# a still empty set of unique ingredients. it s going to be populated by the function getIngredientsSet()
+ingredientsSet = set()
+
 
 # TO-DO: Refactoring
 def menueart_scraper():
@@ -45,7 +56,8 @@ def menueart_scraper():
 	menuart_links = menuart_li.find_all('a', class_='sg-pill')
 
 	# Create the text file that will contain the information about every single recipe
-	recepts_file = create_file("Rezepte")	
+	recepts_file = create_file("Rezepte")
+
 
 	# Loop through the all the categories of Menueart
 	for link in menuart_links:
@@ -81,6 +93,7 @@ def menueart_scraper():
 			# Get the title of the recipe
 			recipe_title = soup.find('h1', class_='page-title')
 
+			
 			row_string += '{}\t'.format(recipe_title.text.strip())
 
 			# get the average rating for each recipe
@@ -116,8 +129,19 @@ def menueart_scraper():
 				#print(zutaten_string)
 			row_string += '{}'.format(zutaten_string)
 
+			# adds the ingredients of the new recipe to the general list of ingredients
+			zutaten += zutaten_string
+
+			# transforms each recipe´s ingredients´ list into a set. we re going to use 
+			# this as a value in recipeHash
+			zutatenSet = set(zutaten_string)
+
 			# add the rating after all ingredients
 			row_string += '{}\n'.format(avg_rating)
+
+			# add the recipe title and ingredient set to the recipeHash
+			recipeHash={recipe_title:zutatenSet}
+
 
 			#row_string += "\n"
 			# Write each recipe, row by row, into the previously created text file
@@ -130,5 +154,42 @@ def menueart_scraper():
 	driver.quit()		
 
 
+# list of all recipe names from the hashmap keys
+#recipeNames = recipeHash.keys()
 
-menueart_scraper()	
+
+# the zutaten list is skimmed down to the unique ingredients by being transformed into a set
+def getIngredientsSet():
+	ingredientsSet = set(zutaten)
+
+# create the numpy matrix filled with binary values for each recipe
+def createMatrix():
+
+	# creates an numpy array with all recipe names
+	numpyNames = np.array(recipeHash.keys())
+
+
+
+	# for each recipe in the hashmap
+	for key in recipeHash:
+
+		# an empty numpy array is created. it is as long as the list of unique ingredients
+		numpyIngredients = np.zeros(len(ingredientsSet))
+
+		# go through the general ingredients set to check if the ingredient is contained into the recipe set
+		for i in ingredientsSet:
+			# if the element in the general set is also in the ingredients set of the single recipe
+			if i in recipeHash[key]:
+				# then a 1 is added to the binary array of the single recipe
+				numpyIngredients
+
+
+
+
+
+
+
+menueart_scraper()
+
+getIngredientsSet()
+
