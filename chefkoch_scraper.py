@@ -33,8 +33,7 @@ recipeHash = {}
 # a list of all (not unique) ingredients
 zutaten = ''
 
-# a still empty set of unique ingredients. it s going to be populated by the function getIngredientsSet()
-ingredientsSet = set()
+
 
 # TO-DO: Refactoring
 def menueart_scraper():
@@ -129,6 +128,7 @@ def menueart_scraper():
 			row_string += '{}'.format(zutaten_string)
 
 			# adds the ingredients of the new recipe to the general list of ingredients
+			global zutaten 
 			zutaten += zutaten_string
 
 			# transforms each recipe´s ingredients´ list into a set. we re going to use 
@@ -157,9 +157,7 @@ def menueart_scraper():
 #recipeNames = recipeHash.keys()
 
 
-# the zutaten list is skimmed down to the unique ingredients by being transformed into a set
-def getIngredientsSet():
-	ingredientsSet = set(zutaten)
+
 
 # create the numpy matrix filled with binary values for each recipe
 def createNumpyMatrix():
@@ -167,29 +165,40 @@ def createNumpyMatrix():
 	# this is the hashmap which is going to be filled with binary values for the recipes´ ingredients
 	recipeBinary = {}
 
+	# a set of unique ingredients
+	ingredientsSet = set(zutaten)
+
+	# transform the ingredients set in a list of unique ingredients to access it
+	ingredientsList = list(ingredientsSet)
+
 
 	# for each recipe in the hashmap
-	for key in recipeHash:
+	for recipe in recipeHash:
 
 		# a numpy array filled with 0s is created. it is as long as the list of unique ingredients
-		numpyIngredients = np.zeros(len(ingredientsSet), dtype=np.int)
+		numpyIngredients = np.zeros(len(ingredientsList), dtype=np.int)
 
 		# go through the general ingredients set to check if the ingredient is contained into the recipe set
-		for i in ingredientsSet:
+		for ingr in ingredientsList:
 			# if the element in the general set is also in the ingredients set of the single recipe
-			if i in recipeHash[key]:
+			if ingr in recipeHash[recipe]:
 				# then a 1 is added to the binary array of the single recipe at the ingredient´s index
-				np.put(numpyIngredients,i,1)
+				np.put(numpyIngredients,ingr,1)
 
 
 		# the binary hashmap is updated with the new recipe and the corresponding binary array of ingredients
-		recipeBinary = {key:numpyIngredients}
+		recipeBinary['recipe']= numpyIngredients
 
+
+	
 
 	# it creates and populates the numpy matrix with the binary values
-	numpyMatrix = np.matrix(recipeBinary.values())
+	numpy_matrix = np.matrix(recipeBinary.values())
 
-	print("et voila!: \n" + numpyMatrix)
+	# tranforms the matrix into a string, so that it can be printed
+	matrix_string = str(numpy_matrix)
+
+	print("et voila!: \n" + matrix_string)
 
 
 
@@ -199,8 +208,6 @@ def createNumpyMatrix():
 
 
 menueart_scraper()
-
-getIngredientsSet()
 
 createNumpyMatrix()
 
