@@ -1,6 +1,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import numpy as np
+import collections
 
 
 
@@ -28,7 +29,7 @@ def reset_string(string_to_reset):
 
 # hashmap (dictionary) of recipe names (keys) and corresponding ingredient sets (values).
 # it s going to be filled up in the menueart_scraper() function
-recipeHash = {}
+recipeHash = collections.OrderedDict()
 
 # a list with all (not unique) ingredients
 zutaten = []
@@ -177,22 +178,15 @@ def createNumpyMatrix():
 	ingredientsList = list(set(zutaten))
 
 	# creates a matrix full of 0s. the nr of rows corresponds to the nr of recipes and the nr of columns to the nr of total ingredients
-	rezepten_matrix = np.zeros((len(recipeHash.keys()),len(ingredientsList))
+	rezepten_matrix = np.zeros((len(recipeHash.keys()),len(ingredientsList)),dtype=np.int)
 
+	for recipe_idx,recipe_ingr in enumerate(recipeHash.values()):
 
-	# for each recipe in the hashmap
-	for recipe_idx in recipeHash:
+		for zutat_idx, ingr in enumerate(ingredientsList):
 
-		for ingr in ingredientsList:
+			if ingr in recipe_ingr:
 
-			# if the element in the general set is also in the ingredients set of the single recipe
-			if ingr in recipeHash[recipe_idx]:
-				# then a 1 is added to the binary array of the single recipe at the ingredient´s index
-				rezepten_matrix[recipe_idx,ingr] = 1
-
-
-		# the binary hashmap is updated with the new recipe and the corresponding binary array of ingredients
-		recipeBinary[recipe_idx]= rezepten_matrix[recipe_idx]
+				rezepten_matrix[recipe_idx,zutat_idx] = 1
 
 
 	
