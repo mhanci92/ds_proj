@@ -30,8 +30,8 @@ def reset_string(string_to_reset):
 # it s going to be filled up in the menueart_scraper() function
 recipeHash = {}
 
-# a list of all (not unique) ingredients
-zutaten = ''
+# a list with all (not unique) ingredients
+zutaten = []
 
 
 
@@ -107,6 +107,9 @@ def menueart_scraper():
 
 			list1 = []
 
+			# in this list there are all ingredients belonging to the same recipe
+			inTheRecipe = []
+
 			# Go through every single row of the table containing the ingredients
 			for row in zutaten_table.find_all('tr'):
 				# Get the required amount of each ingredient that is needed for a recipe
@@ -124,16 +127,21 @@ def menueart_scraper():
 					del list1[:]
 				#print('the ingredient '+ ingredient)
 				zutaten_string += '{}\t'.format(ingredient)
-				#print(zutaten_string)
+
+				# each ingredient is saved into the recipe´s list
+				inTheRecipe.append(ingredient)
+				
+			# adds the ingredients of the new recipe to the general list of ingredients
+			global zutaten
+			zutaten.extend(inTheRecipe)
+
 			row_string += '{}'.format(zutaten_string)
 
-			# adds the ingredients of the new recipe to the general list of ingredients
-			global zutaten 
-			zutaten += zutaten_string
+		
 
 			# transforms each recipe´s ingredients´ list into a set. we re going to use 
 			# this as a value in recipeHash
-			zutatenSet = set(zutaten_string)
+			zutatenSet = set(inTheRecipe)
 
 			# add the rating after all ingredients
 			row_string += '{}\n'.format(avg_rating)
@@ -168,8 +176,11 @@ def createNumpyMatrix():
 	# a set of unique ingredients
 	ingredientsSet = set(zutaten)
 
+
 	# transform the ingredients set in a list of unique ingredients to access it
 	ingredientsList = list(ingredientsSet)
+
+	#print(ingredientsList)
 
 
 	# for each recipe in the hashmap
