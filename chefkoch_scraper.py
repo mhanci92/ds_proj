@@ -129,7 +129,7 @@ def menueart_scraper():
 				zutaten_string += '{}\t'.format(ingredient)
 
 				# each ingredient is saved into the recipe´s list
-				inTheRecipe.append(ingredient)
+				inTheRecipe = zutaten_string.split('\t')
 				
 			# adds the ingredients of the new recipe to the general list of ingredients
 			global zutaten
@@ -141,13 +141,13 @@ def menueart_scraper():
 
 			# transforms each recipe´s ingredients´ list into a set. we re going to use 
 			# this as a value in recipeHash
-			zutatenSet = set(inTheRecipe)
+			recipeSet = set(inTheRecipe)
 
 			# add the rating after all ingredients
 			row_string += '{}\n'.format(avg_rating)
 
 			# add the recipe title and ingredient set to the recipeHash
-			recipeHash={recipe_title:zutatenSet}
+			recipeHash['recipe_title']=recipeSet
 
 
 			#row_string += "\n"
