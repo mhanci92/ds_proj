@@ -77,6 +77,10 @@ def menueart_scraper():
 		# Get the name of the menuart category that we will get recipes from
 		cuisine = link.text.strip()
 
+		# If cuisine is equal to of these, skip it and continue with the next cuisine in the list 
+		if cuisine == "Afrika" or cuisine == "Asien" or cuisine == "Europa" or cuisine == "Osteuropa":
+			continue
+
 		# Build the link for the category to scrape from
 		url = build_menu_item_url(baseUrl, link)
 
