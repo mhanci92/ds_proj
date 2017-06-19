@@ -2,6 +2,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import numpy as np
 import collections
+np.set_printoptions(threshold=np.inf)
 
 
 
@@ -194,6 +195,13 @@ def createNumpyMatrix():
 	matrix_string = str(rezepten_matrix)
 
 	print("et voila!: \n" + matrix_string)
+
+	print(ingredientsList)
+	print(recipeHash.keys())
+
+	return rezepten_matrix
+
+
 
 
 
