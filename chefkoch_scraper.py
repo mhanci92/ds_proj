@@ -1,7 +1,9 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
+
 import numpy as np
 import collections
+import pandas as pd
 np.set_printoptions(threshold=np.inf)
 
 
@@ -169,37 +171,70 @@ def menueart_scraper():
 
 
 
-# create the numpy matrix filled with binary values for each recipe
-def createNumpyMatrix():
+# assign binaries to each recipe and create and return a pandas dataframe out of them
+def createBinaryDF():
 
 	# this is the hashmap which is going to be filled with binary values for the recipes´ ingredients
-	recipeBinary = {}
+	recipeBinary = collections.OrderedDict()
 
 	# transform the ingredients set in a list of unique ingredients to access it
 	ingredientsList = list(set(zutaten))
 
-	# creates a matrix full of 0s. the nr of rows corresponds to the nr of recipes and the nr of columns to the nr of total ingredients
-	rezepten_matrix = np.zeros((len(recipeHash.keys()),len(ingredientsList)),dtype=np.int)
+	for rec_nr, rec_i in enumerate(recipeHash):
 
+		recipeBinary[list(recipeHash)[rec_nr]] = []
+
+
+	# fill the hashmap with recipe names as keys and binary values for the corresponding ingredients
 	for recipe_idx,recipe_ingr in enumerate(recipeHash.values()):
 
 		for zutat_idx, ingr in enumerate(ingredientsList):
 
 			if ingr in recipe_ingr:
 
-				rezepten_matrix[recipe_idx,zutat_idx] = 1
+				recipeBinary[list(recipeHash)[recipe_idx]].append(1)
+
+			else:
+
+				recipeBinary[list(recipeHash)[recipe_idx]].append(0)
+
+
+	# create a pandas dataframe object out of the recipes´ hashmap
+	recipeDF = pd.DataFrame.from_dict(recipeBinary,orient='index')
+
+	# save the dataframe into a csv 
+	recipeDF.to_csv('recipeMatrix.csv', sep = ',', header = ingredientsList, encoding= 'utf-8')
+
+	return recipeDF
+
+
+
+
+
+
+
+	# # creates a matrix full of 0s. the nr of rows corresponds to the nr of recipes and the nr of columns to the nr of total ingredients
+	# rezepten_matrix = np.zeros((len(recipeHash.keys()),len(ingredientsList)),dtype=np.int)
+
+	# for recipe_idx,recipe_ingr in enumerate(recipeHash.values()):
+
+	# 	for zutat_idx, ingr in enumerate(ingredientsList):
+
+	# 		if ingr in recipe_ingr:
+
+	# 			rezepten_matrix[recipe_idx,zutat_idx] = 1
 
 
 	
-	# tranforms the matrix into a string, so that it can be printed
-	matrix_string = str(rezepten_matrix)
+	# # tranforms the matrix into a string, so that it can be printed
+	# matrix_string = str(rezepten_matrix)
 
-	print("et voila!: \n" + matrix_string)
+	# print("et voila!: \n" + matrix_string)
 
-	print(ingredientsList)
-	print(recipeHash.keys())
+	# np.savetxt("recipeMatrix.csv", rezepten_matrix, fmt='%i',delimiter=',')
 
-	return rezepten_matrix
+
+	# return rezepten_matrix
 
 
 
@@ -212,5 +247,5 @@ def createNumpyMatrix():
 
 menueart_scraper()
 
-createNumpyMatrix()
+
 
