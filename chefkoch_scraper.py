@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import collections
 import pandas as pd
+import csv
 np.set_printoptions(threshold=np.inf)
 
 
@@ -168,6 +169,18 @@ def menueart_scraper():
 # list of all recipe names from the hashmap keys
 #recipeNames = recipeHash.keys()
 
+def create_ingredient_set(text_file):
+	with open(text_file, 'r') as tFile:
+		reader = csv.reader(tFile, dialect='excel-tab')
+		recipe_ingredients = []
+		for line in reader:
+			for index, element in enumerate(line):
+				if index != 0 and index != len(line)-1:
+					recipe_ingredients.append(element)
+	print(list(set(recipe_ingredients)))
+	#return list(set(recipe_ingredients))			
+
+
 
 
 
@@ -245,7 +258,8 @@ def createBinaryDF():
 
 
 
-menueart_scraper()
+#menueart_scraper()
+create_ingredient_set('Rezepte.txt')
 
 
 
