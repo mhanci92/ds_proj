@@ -183,7 +183,7 @@ def create_uniqueIngredients_list(text_file):
 def create_recipeIngredients_list(row):
     ingredients = []
     for index, element in enumerate(row):
-        if index != 1 and index != len(row)-1:
+        if index > 1 and index < len(row)-1:
             ingredients.append(element)
     return ingredients
 
@@ -194,9 +194,13 @@ def create_recipe_hash(text_file):
     with open(text_file, 'r') as tFile:
         reader = csv.reader(tFile, dialect='excel-tab')
         recipe_hash = collections.OrderedDict()
+        zähler = 0
         for line in reader:
-        	recipe_hash[line[1]] = create_recipeIngredients_list(line)
-    print(recipe_hash)
+        	if line[1] in recipe_hash:
+        		recipe_hash[line[1] + str(len(recipe_hash))] = create_recipeIngredients_list(line)
+        	else:
+        		recipe_hash[line[1]] = create_recipeIngredients_list(line)
+    #print(recipe_hash)
     return recipe_hash
 
 
@@ -206,26 +210,28 @@ def createBinaryDF():
 	# this is the hashmap which is going to be filled with binary values for the recipes´ ingredients
 	recipeBinary = collections.OrderedDict()
 
-	# transform the ingredients set in a list of unique ingredients to access it
-	ingredientsList = list(set(zutaten))
+	recipe_hash = create_recipe_hash('Rezepte.txt')
 
-	for rec_nr, rec_i in enumerate(recipeHash):
+	ingredientsList = create_uniqueIngredients_list('Rezepte.txt')
 
-		recipeBinary[list(recipeHash)[rec_nr]] = []
+
+	for rec_nr, rec_i in enumerate(recipe_hash):
+
+		recipeBinary[list(recipe_hash)[rec_nr]] = []
 
 
 	# fill the hashmap with recipe names as keys and binary values for the corresponding ingredients
-	for recipe_idx,recipe_ingr in enumerate(recipeHash.values()):
+	for recipe_idx,recipe_ingr in enumerate(recipe_hash.values()):
 
 		for zutat_idx, ingr in enumerate(ingredientsList):
 
 			if ingr in recipe_ingr:
 
-				recipeBinary[list(recipeHash)[recipe_idx]].append(1)
+				recipeBinary[list(recipe_hash)[recipe_idx]].append(1)
 
 			else:
 
-				recipeBinary[list(recipeHash)[recipe_idx]].append(0)
+				recipeBinary[list(recipe_hash)[recipe_idx]].append(0)
 
 
 	# create a pandas dataframe object out of the recipes´ hashmap
@@ -275,7 +281,11 @@ def createBinaryDF():
 
 
 #menueart_scraper()
-create_uniqueIngredients_list('Rezepte.txt')
+#create_uniqueIngredients_list('Rezepte.txt')
+#print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
+#create_recipe_hash('Rezepte.txt')
+createBinaryDF()
+
 
 
 
