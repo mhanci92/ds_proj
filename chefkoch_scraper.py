@@ -165,23 +165,39 @@ def menueart_scraper():
 	# Close the driver			
 	driver.quit()		
 
+			
 
-# list of all recipe names from the hashmap keys
-#recipeNames = recipeHash.keys()
-
-def create_ingredient_set(text_file):
-	with open(text_file, 'r') as tFile:
-		reader = csv.reader(tFile, dialect='excel-tab')
-		recipe_ingredients = []
-		for line in reader:
-			for index, element in enumerate(line):
-				if index != 0 and index != len(line)-1:
-					recipe_ingredients.append(element)
-	print(list(set(recipe_ingredients)))
-	#return list(set(recipe_ingredients))			
+# this creates a list of all unique ingredients from the txt file
+def create_uniqueIngredients_list(text_file):
+    with open(text_file, 'r') as tFile:
+        reader = csv.reader(tFile, dialect = 'excel-tab')
+        recipe_ingredients = []
+        for line in reader:
+        	recipe_ingredients.extend(create_recipeIngredients_list(line))
+    unique_ingredients = list(set(recipe_ingredients))
+    print(str(unique_ingredients))
+    return unique_ingredients
 
 
+# hilfsmethode. it creates a list of all ingredients for one single recipe
+def create_recipeIngredients_list(row):
+    ingredients = []
+    for index, element in enumerate(row):
+        if index != 1 and index != len(row)-1:
+            ingredients.append(element)
+    return ingredients
 
+
+# it creates a hashmap (ordered dictionary) of all recipe names (keys) and corresponding ingredients list (values)
+# out of the txt file
+def create_recipe_hash(text_file):
+    with open(text_file, 'r') as tFile:
+        reader = csv.reader(tFile, dialect='excel-tab')
+        recipe_hash = collections.OrderedDict()
+        for line in reader:
+        	recipe_hash[line[1]] = create_recipeIngredients_list(line)
+    print(recipe_hash)
+    return recipe_hash
 
 
 # assign binaries to each recipe and create and return a pandas dataframe out of them
@@ -259,7 +275,7 @@ def createBinaryDF():
 
 
 #menueart_scraper()
-create_ingredient_set('Rezepte.txt')
+create_uniqueIngredients_list('Rezepte.txt')
 
 
 
