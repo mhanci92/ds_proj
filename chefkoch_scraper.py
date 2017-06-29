@@ -204,36 +204,44 @@ def create_recipe_hash(text_file):
     print(recipe_hash)
     return recipe_hash
 
+# it creates an ordered list of ratings (same order as recipes). these are categorized according to rating classes, 
+# so if a rating is between 2 and 3, it belongs to class 3 and so on.
+def create_ratings_list(text_file):
+	with open(text_file, 'r') as tFile:
+		reader = csv.reader(tFile, dialect ='excel-tab')
+		ratings = []
+		for line in reader:
+			if float(line[len(line)-1].strip()) >= 0 and float(line[len(line)-1].strip()) < 1 :
+				ratings.append(1)
+			elif float(line[len(line)-1].strip()) >= 1 and float(line[len(line)-1].strip()) < 2 :
+				ratings.append(2)
+			elif float(line[len(line)-1].strip()) >= 2 and float(line[len(line)-1].strip()) < 3 :
+				ratings.append(3)
+			elif float(line[len(line)-1].strip()) >= 3 and float(line[len(line)-1].strip()) < 4 :
+				ratings.append(4)
+			elif float(line[len(line)-1].strip()) >= 4 and float(line[len(line)-1].strip()) < 5 :
+				ratings.append(5)
+	return ratings
+
+
 
 # assign binaries to each recipe and create and return a pandas dataframe out of them
 def createBinaryDF():
 
 	# this is the hashmap which is going to be filled with binary values for the recipes´ ingredients
 	recipeBinary = collections.OrderedDict()
-
 	recipe_hash = create_recipe_hash('Rezepte.txt')
-
 	ingredientsList = create_uniqueIngredients_list('Rezepte.txt')
-
-
 	for rec_nr, rec_i in enumerate(recipe_hash):
-
 		recipeBinary[list(recipe_hash)[rec_nr]] = []
-
 
 	# fill the hashmap with recipe names as keys and binary values for the corresponding ingredients
 	for recipe_idx,recipe_ingr in enumerate(recipe_hash.values()):
-
 		for zutat_idx, ingr in enumerate(ingredientsList):
-
 			if ingr in recipe_ingr:
-
 				recipeBinary[list(recipe_hash)[recipe_idx]].append(1)
-
 			else:
-
 				recipeBinary[list(recipe_hash)[recipe_idx]].append(0)
-
 
 	# create a pandas dataframe object out of the recipes´ hashmap
 	recipeDF = pd.DataFrame.from_dict(recipeBinary,orient='index')
@@ -284,9 +292,11 @@ def createBinaryDF():
 #menueart_scraper()
 #print(len(create_uniqueIngredients_list('Rezepte.txt')))
 #print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
-create_recipe_hash('Rezepte.txt')
+#create_recipe_hash('Rezepte.txt')
 #menueart_scraper()
-createBinaryDF()
+#createBinaryDF()
+
+create_ratings_list('Rezepte.txt')
 
 
 
