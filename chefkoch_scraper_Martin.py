@@ -17,7 +17,7 @@ def initialize_driver():
 	return driver	
 
 # Simple Method that is supposed to combine the baseUrl with a href suffix of the second parameter
-def build_menu_item_url(baseUrl, link_to_get_href_from):
+def build_link(baseUrl, link_to_get_href_from):
 	href = link_to_get_href_from['href']
 	return baseUrl + href	
 
@@ -35,18 +35,12 @@ recipeHash = collections.OrderedDict()
 # a list with all (not unique) ingredients
 zutaten = []
 
-
-
-# TO-DO: Refactoring
 def menueart_scraper():
-	# Initialize the driver
 	driver = initialize_driver()
 
-	# Set the important Urls that are required later
 	baseUrl = "http://www.chefkoch.de"
 	receptsUrl = 'http://www.chefkoch.de/rezepte/'
 
-	# Additional string to add to the end the the recipe url in order to make that the ingredients listed are for a two people meal
 	two_meals = '?portionen=2'
 
 	soup = BeautifulSoup(get_page_source(receptsUrl, driver), 'lxml')
@@ -65,7 +59,6 @@ def menueart_scraper():
 		print(ie)
 		raise 		
 
-	# Create the text file that will contain the information about every single recipe
 	recepts_file = create_file("Rezepte")
 
 
@@ -77,15 +70,20 @@ def menueart_scraper():
 		# Get the name of the menuart category that we will get recipes from
 		cuisine = link.text.strip()
 
-		# If cuisine is equal to of these, skip it and continue with the next cuisine in the list 
+		# If cuisine is equal to one of these, skip it and continue with the next cuisine in the list 
 		if cuisine == "Afrika" or cuisine == "Asien" or cuisine == "Europa" or cuisine == "Osteuropa":
 			continue
 
 		# Build the link for the category to scrape from
-		url = build_menu_item_url(baseUrl, link)
+		url = build_link(baseUrl, link)
 
 		# Initialize a soup object based on the content from the link
 		soup = BeautifulSoup(get_page_source(url, driver), 'lxml')
+
+		a_sort_acc_date = soup.find('a', class_='searchresult-sorting-by-date')
+		sort_Acc_To_Date_Full_Link = build_link(baseUrl, a_sort_acc_date)
+
+		soup = BeautifulSoup(get_page_source(sort_Acc_To_Date_Full_Link, driver), 'lxml')
 
 		# Now find the search list containing all the recipes of the previously selected menu item
 		search_list = soup.find('ul', class_='search-list')
@@ -102,12 +100,11 @@ def menueart_scraper():
 			recipe_a_link = recipe.findChild('a')
 
 			if recipe_a_link != None:
-				full_url_to_recipe = build_menu_item_url(baseUrl, recipe_a_link)
+				full_url_to_recipe = build_link(baseUrl, recipe_a_link)
 			else:
 				row_string = "{}".format("\n")
 				continue	
 
-			# Get source code of the recipe 
 			soup = BeautifulSoup(get_page_source(full_url_to_recipe+two_meals, driver), 'lxml')
 
 			### Start scraping information from the current recipe ###
@@ -125,10 +122,14 @@ def menueart_scraper():
 				continue		
 
 			# get the average rating for each recipe
-			rating = soup.find_all('span', class_='rating__average-rating')[0].text.strip()
+			avg_rating = ''			
+			try:
+				rating = soup.find('span', class_='rating__average-rating').text.strip()
+				# leave out the average symbol at the beginning of the rating				
+				avg_rating = rating[1:]
+			except AttributeError:	
+				avg_rating = "0"
 
-			# leave out the average symbol at the beginning of the rating
-			avg_rating = rating[1:]
 
 			# Get the table which contains all the ingredients
 			zutaten_table = soup.find('table', class_='incredients')
@@ -163,7 +164,6 @@ def menueart_scraper():
 					ingredient = list1[0]
 					# empty the list to make space for the next 
 					del list1[:]
-				#print('the ingredient '+ ingredient)
 				zutaten_string += "{}\t".format(ingredient)
 
 				# each ingredient is saved into the recipe´s list
@@ -174,8 +174,6 @@ def menueart_scraper():
 			zutaten.extend(inTheRecipe)
 
 			row_string += "{}".format(zutaten_string)
-
-		
 
 			# transforms each recipe´s ingredients´ list into a set. we re going to use 
 			# this as a value in recipeHash
@@ -195,7 +193,6 @@ def menueart_scraper():
 			print(str(recipe_title.text.strip()) + " added to the text file!")
 
 	recepts_file.close()
-	# Close the driver			
 	driver.quit()		
 
 
@@ -236,6 +233,4 @@ def createNumpyMatrix():
 
 
 menueart_scraper()
-
 #createNumpyMatrix()
-
