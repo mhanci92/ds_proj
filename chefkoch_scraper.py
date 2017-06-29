@@ -175,16 +175,18 @@ def create_uniqueIngredients_list(text_file):
         for line in reader:
         	recipe_ingredients.extend(create_recipeIngredients_list(line))
     unique_ingredients = list(set(recipe_ingredients))
-    print(str(unique_ingredients))
+    #print(str(unique_ingredients))
     return unique_ingredients
 
 
 # hilfsmethode. it creates a list of all ingredients for one single recipe
 def create_recipeIngredients_list(row):
+    row = list(filter(None, row))
     ingredients = []
     for index, element in enumerate(row):
         if index > 1 and index < len(row)-1:
             ingredients.append(element)
+
     return ingredients
 
 
@@ -194,13 +196,12 @@ def create_recipe_hash(text_file):
     with open(text_file, 'r') as tFile:
         reader = csv.reader(tFile, dialect='excel-tab')
         recipe_hash = collections.OrderedDict()
-        zähler = 0
         for line in reader:
         	if line[1] in recipe_hash:
         		recipe_hash[line[1] + str(len(recipe_hash))] = create_recipeIngredients_list(line)
         	else:
         		recipe_hash[line[1]] = create_recipeIngredients_list(line)
-    #print(recipe_hash)
+    print(recipe_hash)
     return recipe_hash
 
 
@@ -281,11 +282,11 @@ def createBinaryDF():
 
 
 #menueart_scraper()
-#create_uniqueIngredients_list('Rezepte.txt')
+#print(len(create_uniqueIngredients_list('Rezepte.txt')))
 #print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
-#create_recipe_hash('Rezepte.txt')
+create_recipe_hash('Rezepte.txt')
+#menueart_scraper()
 createBinaryDF()
-
 
 
 
