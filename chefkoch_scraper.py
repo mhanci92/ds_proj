@@ -211,16 +211,18 @@ def create_ratings_list(text_file):
 		reader = csv.reader(tFile, dialect ='excel-tab')
 		ratings = []
 		for line in reader:
-			if float(line[len(line)-1].strip()) >= 0 and float(line[len(line)-1].strip()) < 1 :
+			rating = float(line[len(line)-1].strip().replace(',','.'))
+			if rating >= 0 and rating < 1 :
 				ratings.append(1)
-			elif float(line[len(line)-1].strip()) >= 1 and float(line[len(line)-1].strip()) < 2 :
+			elif rating >= 1 and rating < 2 :
 				ratings.append(2)
-			elif float(line[len(line)-1].strip()) >= 2 and float(line[len(line)-1].strip()) < 3 :
+			elif rating >= 2 and rating < 3 :
 				ratings.append(3)
-			elif float(line[len(line)-1].strip()) >= 3 and float(line[len(line)-1].strip()) < 4 :
+			elif rating >= 3 and rating < 4 :
 				ratings.append(4)
-			elif float(line[len(line)-1].strip()) >= 4 and float(line[len(line)-1].strip()) < 5 :
+			elif rating >= 4 and rating < 5 :
 				ratings.append(5)
+	print(str(ratings))
 	return ratings
 
 
