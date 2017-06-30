@@ -205,25 +205,35 @@ def create_recipe_hash(text_file):
     return recipe_hash
 
 # it creates an ordered list of ratings (same order as recipes). these are categorized according to rating classes, 
-# so if a rating is between 2 and 3, it belongs to class 3 and so on.
+# so if a rating is between 2 and 3, it belongs to class 3 and so on. this is returned as a pandas dataframe and saved to a csv.
 def create_ratings_list(text_file):
 	with open(text_file, 'r') as tFile:
 		reader = csv.reader(tFile, dialect ='excel-tab')
-		ratings = []
+		ratings_hash = collections.OrderedDict()
 		for line in reader:
+
+			# extract the rating and categorize it
 			rating = float(line[len(line)-1].strip().replace(',','.'))
 			if rating >= 0 and rating < 1 :
-				ratings.append(1)
+				rating = 1
 			elif rating >= 1 and rating < 2 :
-				ratings.append(2)
+				rating = 2
 			elif rating >= 2 and rating < 3 :
-				ratings.append(3)
+				rating = 3
 			elif rating >= 3 and rating < 4 :
-				ratings.append(4)
+				rating = 4
 			elif rating >= 4 and rating < 5 :
-				ratings.append(5)
-	print(str(ratings))
-	return ratings
+				rating = 5
+
+			# extend the hashmap with recipe names and corresponding ratings
+			if line[1] in ratings_hash:
+				ratings_hash[line[1] + str(len(ratings_hash))] = rating
+			else:
+				ratings_hash[line[1]] = rating
+
+	ratingsDF = pd.DataFrame.from_dict(data=ratings_hash,orient='index')
+	ratingsDF.to_csv('ratingsDF.csv', sep=',', header = ratings_hash.keys(), encoding = 'utf-8')
+	return ratingsDF
 
 
 
