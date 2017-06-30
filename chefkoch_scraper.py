@@ -31,14 +31,6 @@ def create_file(file_name):
 def reset_string(string_to_reset):
 	string_to_reset = ''	
 
-# hashmap (dictionary) of recipe names (keys) and corresponding ingredient sets (values).
-# it s going to be filled up in the menueart_scraper() function
-recipeHash = collections.OrderedDict()
-
-# a list with all (not unique) ingredients
-zutaten = []
-
-
 
 # TO-DO: Refactoring
 def menueart_scraper():
@@ -262,43 +254,6 @@ def createBinaryDF():
 	recipeDF.to_csv('recipeMatrix.csv', sep = ',', header = ingredientsList, encoding= 'utf-8')
 
 	return recipeDF
-
-
-
-
-
-
-
-	# # creates a matrix full of 0s. the nr of rows corresponds to the nr of recipes and the nr of columns to the nr of total ingredients
-	# rezepten_matrix = np.zeros((len(recipeHash.keys()),len(ingredientsList)),dtype=np.int)
-
-	# for recipe_idx,recipe_ingr in enumerate(recipeHash.values()):
-
-	# 	for zutat_idx, ingr in enumerate(ingredientsList):
-
-	# 		if ingr in recipe_ingr:
-
-	# 			rezepten_matrix[recipe_idx,zutat_idx] = 1
-
-
-	
-	# # tranforms the matrix into a string, so that it can be printed
-	# matrix_string = str(rezepten_matrix)
-
-	# print("et voila!: \n" + matrix_string)
-
-	# np.savetxt("recipeMatrix.csv", rezepten_matrix, fmt='%i',delimiter=',')
-
-
-	# return rezepten_matrix
-
-
-
-
-
-
-
-
 
 
 #menueart_scraper()

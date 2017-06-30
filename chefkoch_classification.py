@@ -14,30 +14,68 @@ from sklearn import svm
 from sklearn.cross_validation import train_test_split
 
 
-# creates a numpy array with recipes out of the dataframe 
-dataset = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8')
 
-# it splits the dataframe into
-train, validate, test = np.split(dataset.sample(frac=1), [int(.6*len(dataset)), int(.8*len(dataset))])
-
-# it creates the numpy array for the train data
-training_recipes = train.as_matrix()
-
-# it creates the numpy array for the validation data
-validation_recipes = validate.as_matrix()
-
-# it creates the numpy array for the test data
-test_recipes = test.as_matrix()
+def read_datasets():
+	
+	# creates a numpy array with recipes out of the dataframe 
+	recipes_dataset = reduce_dimensionality(pd.read_csv('recipeMatrix.csv', encoding = 'utf-8'))
+	# creates a numpy array with ratings out of the dataframe
+	ratings_dataset = reduce_dimensionality(pd.read_csv('ratingsDF.csv', encoding = 'utf-8'))
+	return recipes_dataset,ratings_dataset
 
 
 
-# creates pca for dimentionality reduction. no parameters, cause all components should be kept
-pca = PCA()
+def reduce_dimensionality(dataset):
 
-# reduces the dataset´s dimensionality 
-recipes = pca.fit_transform(data)
+	pca = PCA()
+	ds = pca.fit_transform(dataset)
+	return ds
 
 
+def split_ds(dataset):
+
+	train, val, test = np.split(dataset.sample(frac=1), [int(.6*len(dataset)), int(.8*len(dataset))])
+	return train, val, test
+
+
+
+
+
+def split_recipeDS():
+
+	recipes_dataset = read_datasets()[0]
+	x_train, x_validate, x_test = split_ds(recipes_dataset)
+	return x_train, x_validate, x_test
+
+
+
+
+def split_ratingsDS():
+
+	ratings_dataset = read_datasets()[1]
+	y_train, y_validate, y_test = split_ds(ratings_dataset)
+	return y_train, y_validate, y_test
+
+
+
+
+def recipesDS_toArray():
+
+	# it creates numpy arrays for the x data (recipes)
+	training_recipes, validation_recipes, test_recipes = x_train.as_matrix(), x_validate.as_matrix(), x_test.as_matrix() 
+	return training_recipes, validation_recipes, test_recipes
+
+
+
+
+def ratingsDS_toArray():
+
+	# it creates numpy arrays for the y data (ratings)
+	training_ratings, validation_ratings, test_ratings = y_train.as_matrix(), y_validate.as_matrix(), y_test.as_matrix()
+	return training_ratings, validation_ratings, test_ratings
+
+
+# not yet refactored
 
 
 
