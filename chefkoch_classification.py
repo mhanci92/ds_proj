@@ -11,6 +11,8 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn import svm
+from sklearn import metrics
+from sklearn.manifold import Isomap
 
 
 recipeMatrix = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8')
@@ -18,12 +20,11 @@ ratingsDF = pd.read_csv('ratingsDF.csv', encoding = 'utf-8')
 
 
 
-# it reduces the dimensionality of both datasets and returns them
+# it reduces the dimensionality of both datasets and returns them (as numpy arrays) 
 def reduce_datasets():
 	
-	# creates a numpy array with recipes out of the dataframe 
-	recipes_dataset = reduce_dimensionality(recipeMatrix)
-	# creates a numpy array with ratings out of the dataframe
+	
+	recipes_dataset = reduce_dimensionality(recipeMatrix)	
 	ratings_dataset = reduce_dimensionality(ratingsDF)
 	return recipes_dataset,ratings_dataset
 
@@ -59,15 +60,49 @@ def split_ratingsDS():
 	return y_train, y_validate, y_test
 
 
+# it creates and fits the given svc model (linear, rbf, poly, sigmoid kernels...). it also returns the score 
+def apply_svc(kernel):
 
-# it creates and returns the svc model
-def create_svc():
+	x_train, x_validate = split_recipeDS()[0], split_recipeDS()[1]
+	y_train, y_validate = split_ratingsDS()[0], split_ratingsDS()[1]
 
-	svc = svm.SVC(gamma=0.001, C=100., kernel='linear')
-
-
-
-
+	svc = svm.SVC(kernel, decision_function_shape='ovr').fit(x_train, y_train)
+	print(svc.score(x_validate, y_validate))
+	return svc
 
 
 
+# predicts results of the given svc
+def predict_svc(kernel):
+
+	x_validate = split_recipeDS()[1]
+	y_validate = split_ratingsDS()[1]
+	prediction = apply_svc(kernel).predict(x_validate)
+
+	print(prediction)
+	print(y_validate)
+
+	return prediction
+
+
+# prints the classification report of the y-validation set and the prediction. this way you can assess the quality of the used model
+def print_metrics(kernel):
+
+	y_validate = split_ratingsDS()[1]
+
+	print(metrics.classification_report(y_validate,predict_svc(kernel)))
+	print(metrics.confusion_matrix(y_validate,predict_svc(kernel)))
+
+
+
+
+
+
+# creates an isomap to visualise the classified data
+#def isomap_viz():
+
+	#x_train = split_recipeDS()[0]
+	#x_iso = Isomap(n_neighbors=10).fit_transform(x_train)
+
+	# Create a plot with subplots in a grid of 1X2
+	#fig, ax = plt.subplots(1, 2, figsize=(8, 4))
