@@ -4,7 +4,7 @@ Created on Tue Jun 20 10:27:15 2017
 
 @author: AnNa
 """
-#import numpy as np
+import numpy as np
 #import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -36,7 +36,7 @@ from sklearn.model_selection import train_test_split
 # it creates and fits the given svc model (linear, rbf, poly, sigmoid kernels...). it also returns the score 
 def apply_svc(ker):	
 
-	svc = svm.SVC(kernel = ker, decision_function_shape='ovr').fit(x_train.shape, y_train.shape)
+	svc = svm.SVC(kernel = ker, decision_function_shape='ovr').fit(x_train, y_train)
 	print(svc.score(x_validate, y_validate))
 	return svc
 
@@ -77,11 +77,10 @@ def print_metrics(kernel):
 
 if __name__ == "__main__":
 	recipeMatrix = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8')
-	ratingsNP = pd.read_csv('ratingsNP.csv', encoding = 'utf-8')
+	ratingsNP = np.loadtxt('ratingsNP.csv')
 	x_train, x_te, y_train, y_te = train_test_split(recipeMatrix, ratingsNP, test_size = 0.40, random_state = 42)
 	x_validate, x_test, y_validate, y_test = train_test_split(x_te,y_te, test_size = 0.20, random_state = 42)
 
-	split_ds()
 	apply_svc('linear')
 	predict_svc('linear')
 	print_metrics('linear')

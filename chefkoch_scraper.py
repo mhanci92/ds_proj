@@ -147,10 +147,10 @@ def create_ratings_list(text_file):
 			ratings.append(np.ceil(rating))
 
 	ratingsNP = np.array(ratings)
-	ratingsNP = pd.DataFrame(ratingsNP)
-	# np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
+	# ratingsNP = pd.DataFrame(ratingsNP)
+	np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
 	# print(ratingsNP.size)
-	ratingsNP.to_csv('ratingsNP.csv', sep = ',', encoding = 'utf-8')
+	# ratingsNP.to_csv('ratingsNP.csv', sep = ',', encoding = 'utf-8', index = False)
 	
 	return ratingsNP
 	## return ratings_hash.values()
@@ -179,7 +179,7 @@ def createBinaryDF():
 	recipeDF = pd.DataFrame.from_dict(recipeBinary,orient='index')
 
 	# save the dataframe into a csv 
-	recipeDF.to_csv('recipeMatrix.csv', sep = ',', header = ingredientsList, encoding= 'utf-8')
+	recipeDF.to_csv('recipeMatrix.csv', sep = ',', header = False, encoding= 'utf-8', index = False)
 
 	return recipeDF
 
