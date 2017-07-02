@@ -4,30 +4,30 @@ Created on Tue Jun 20 10:27:15 2017
 
 @author: AnNa
 """
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 import pandas as pd
 
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import scale
+#from sklearn.decomposition import PCA
+#from sklearn.preprocessing import scale
 from sklearn import svm
 from sklearn import metrics
-from sklearn.manifold import Isomap
+#from sklearn.manifold import Isomap
 from sklearn.model_selection import train_test_split
 
 
 recipeMatrix = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8')
-ratingsDF = pd.read_csv('ratingsDF.csv', encoding = 'utf-8')
+ratingsDF = pd.read_csv('ratingsDF.csv', encoding = 'utf-8').as_matrix()
 
 
 
 # it reduces the dimensionality of both datasets and returns them (as numpy arrays) 
-def reduce_datasets():
-	
-	
-	recipes_dataset = reduce_dimensionality(recipeMatrix.shape)	
-	ratings_dataset = reduce_dimensionality(ratingsDF.shape)
-	return recipes_dataset,ratings_dataset
+#def reduce_datasets():
+#	
+#	
+#	recipes_dataset = reduce_dimensionality(recipeMatrix.shape)	
+#	ratings_dataset = reduce_dimensionality(ratingsDF.shape)
+#	return recipes_dataset,ratings_dataset
 
 
 # it uses pca for dimensionality reduction
@@ -67,9 +67,9 @@ def split_ds():
 # it creates and fits the given svc model (linear, rbf, poly, sigmoid kernels...). it also returns the score 
 def apply_svc(ker):
 
-	x_train, x_validate, y_train, y_validate = split_DS()[0], split_DS()[1], split_DS()[3], split_DS()[4]	
+	x_train, x_validate, y_train, y_validate = split_ds()[0], split_ds()[1], split_ds()[3], split_ds()[4]	
 
-	svc = svm.SVC(kernel = ker, decision_function_shape='ovr').fit(x_train, y_train)
+	svc = svm.SVC(kernel = ker, decision_function_shape='ovr').fit(x_train.shape, y_train.shape)
 	print(svc.score(x_validate, y_validate))
 	return svc
 
@@ -78,7 +78,7 @@ def apply_svc(ker):
 # predicts results of the given svc
 def predict_svc(ker):
 
-	x_validate, y_validate = split_DS()[1], split_DS()[4]
+	x_validate, y_validate = split_ds()[1], split_ds()[4]
 	prediction = apply_svc(kernel = ker).predict(x_validate)
 
 	print(prediction)
@@ -90,14 +90,14 @@ def predict_svc(ker):
 # prints the classification report of the y-validation set and the prediction. this way you can assess the quality of the used model
 def print_metrics(kernel):
 
-	y_validate = split_ratingsDS()[1]
+	y_validate = split_ds()[4]
 
 	print(metrics.classification_report(y_validate,predict_svc(kernel)))
 	print(metrics.confusion_matrix(y_validate,predict_svc(kernel)))
 
 
 #reduce_datasets()
-split_DS()
+split_ds()
 apply_svc('linear')
 predict_svc('linear')
 print_metrics('linear')

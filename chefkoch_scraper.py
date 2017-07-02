@@ -1,5 +1,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from time import sleep
+from random import randint, shuffle
 
 import numpy as np
 import collections
@@ -28,21 +30,18 @@ def build_menu_item_url(baseUrl, link_to_get_href_from):
 def create_file(file_name):
 	return open(file_name + ".txt", "w")
 
+
 def reset_string(string_to_reset):
 	string_to_reset = ''	
 
 
-# TO-DO: Refactoring
+
 def menueart_scraper():
-	# Initialize the driver
+
 	driver = initialize_driver()
 
-	# Set the important Urls that are required later
 	baseUrl = "http://www.chefkoch.de"
 	receptsUrl = 'http://www.chefkoch.de/rezepte/'
-
-	# Additional string to add to the end the the recipe url in order to make that the ingredients listed are for a two people meal
-	two_meals = '?portionen=2'
 
 	soup = BeautifulSoup(get_page_source(receptsUrl, driver), 'lxml')
 
@@ -50,111 +49,50 @@ def menueart_scraper():
 	menuart_li = ul.findChildren('li', class_='recipe-tag-list-item')[2]
 	menuart_links = menuart_li.find_all('a', class_='sg-pill')
 
-	# Create the text file that will contain the information about every single recipe
 	recepts_file = create_file("Rezepte")
 
-
-	# Loop through the all the categories of Menueart
 	for link in menuart_links:
 
 		row_string = ''
-
-		# Get the name of the menuart category that we will get recipes from
 		category_name = link.text.strip()
-
-		# Build the link for the category to scrape from
 		url = build_menu_item_url(baseUrl, link)
-
-		# Initialize a soup object based on the content from the link
 		soup = BeautifulSoup(get_page_source(url, driver), 'lxml')
-
-		# Now find the search list containing all the recipes of the previously selected menu item
 		search_list = soup.find('ul', class_='search-list')
-
-		# Find all the items that the previously found list contains
 		search_list_items = search_list.find_all('li', class_='search-list-item')
-
-		# Now loop through the list of items and scrape data from every single recipe
+        
 		for recipe in search_list_items:
 			row_string += "{}\t".format(category_name)
 			recipe_a_link = recipe.findChild('a')
 			full_url_to_recipe = build_menu_item_url(baseUrl, recipe_a_link)
-
-			# Get source code of the recipe 
-			soup = BeautifulSoup(get_page_source(full_url_to_recipe+two_meals, driver), 'lxml')
-
-			### Start scraping information from the current recipe ###
-
-			# Get the title of the recipe
+			soup = BeautifulSoup(get_page_source(full_url_to_recipe, driver), 'lxml')
 			recipe_title = soup.find('h1', class_='page-title')
-
-			
 			row_string += '{}\t'.format(recipe_title.text.strip())
-
-			# get the average rating for each recipe
 			rating = soup.find_all('span', class_='rating__average-rating')[0].text.strip()
-
-			# leave out the average symbol at the beginning of the rating
 			avg_rating = rating[1:]
-
-			# Get the table which contains all the ingredients
 			zutaten_table = soup.find('table', class_='incredients')
-
 			zutaten_string = ''
-
 			list1 = []
-
-			# in this list there are all ingredients belonging to the same recipe
-			inTheRecipe = []
-
-			# Go through every single row of the table containing the ingredients
+            
 			for row in zutaten_table.find_all('tr'):
-				# Get the required amount of each ingredient that is needed for a recipe
-				#amount = row.find('td', class_='amount').text.strip()
-				# Get the name of each ingredient that is needed for a recipe
 				ingredient = row.find_all('td')[1].text.strip()
-				# check if the ingredient string is made up of more than the ingredient itself
+                
 				if ',' in ingredient:
-					# split the string at the comma
 					list1 = ingredient.split(',')
-					#print('first element: '+ list1[0])
-					# get the first substring which contains the ingredient
 					ingredient = list1[0]
-					# empty the list to make space for the next 
 					del list1[:]
-				#print('the ingredient '+ ingredient)
 				zutaten_string += '{}\t'.format(ingredient)
-
-				# each ingredient is saved into the recipe´s list
-				inTheRecipe = zutaten_string.split('\t')
 				
-			# adds the ingredients of the new recipe to the general list of ingredients
-			global zutaten
-			zutaten.extend(inTheRecipe)
-
 			row_string += '{}'.format(zutaten_string)
-
-		
-
-			# transforms each recipe´s ingredients´ list into a set. we re going to use 
-			# this as a value in recipeHash
-			#recipeSet = set(inTheRecipe)
-
-			# add the rating after all ingredients
 			row_string += '{}\n'.format(avg_rating)
 
-			# add the recipe title and ingredients list to the recipeHash
-			recipeHash[recipe_title.text.strip()] = inTheRecipe
-
-
-			#row_string += "\n"
-			# Write each recipe, row by row, into the previously created text file
 			recepts_file.write(row_string)
 			reset_string(row_string)
 			print(str(recipe_title.text.strip()) + " added to the text file!")
+			sleep_for = randint(3,10)
+			sleep(sleep_for)
 
-	recepts_file.close()
-	# Close the driver			
+
+	recepts_file.close()			
 	driver.quit()		
 
 			
@@ -193,7 +131,7 @@ def create_recipe_hash(text_file):
         		recipe_hash[line[1] + str(len(recipe_hash))] = create_recipeIngredients_list(line)
         	else:
         		recipe_hash[line[1]] = create_recipeIngredients_list(line)
-    print(recipe_hash)
+    #print(recipe_hash)
     return recipe_hash
 
 # it creates an ordered list of ratings (same order as recipes). these are categorized according to rating classes, 
@@ -201,31 +139,28 @@ def create_recipe_hash(text_file):
 def create_ratings_list(text_file):
 	with open(text_file, 'r') as tFile:
 		reader = csv.reader(tFile, dialect ='excel-tab')
-		ratings_hash = collections.OrderedDict()
+		ratings = []
 		for line in reader:
 
 			# extract the rating and categorize it
 			rating = float(line[len(line)-1].strip().replace(',','.'))
 			if rating >= 0 and rating < 1 :
-				rating = 1
+				ratings.append(1)
 			elif rating >= 1 and rating < 2 :
-				rating = 2
+				ratings.append(2)
 			elif rating >= 2 and rating < 3 :
-				rating = 3
+				ratings.append(3)
 			elif rating >= 3 and rating < 4 :
-				rating = 4
+				ratings.append(4)
 			elif rating >= 4 and rating < 5 :
-				rating = 5
+				ratings.append(5)
 
-			# extend the hashmap with recipe names and corresponding ratings
-			if line[1] in ratings_hash:
-				ratings_hash[line[1] + str(len(ratings_hash))] = rating
-			else:
-				ratings_hash[line[1]] = rating
-
-	ratingsDF = pd.DataFrame.from_dict(data=ratings_hash,orient='index')
-	ratingsDF.to_csv('ratingsDF.csv', sep=',', header = ratings_hash.keys(), encoding = 'utf-8')
-	return ratingsDF
+	ratingsNP = np.array(ratings)
+	np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
+	# print(ratingsNP.size)
+	
+	return ratingsNP
+	## return ratings_hash.values()
 
 
 
@@ -260,9 +195,7 @@ def createBinaryDF():
 #print(len(create_uniqueIngredients_list('Rezepte.txt')))
 #print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
 #create_recipe_hash('Rezepte.txt')
-#menueart_scraper()
 #createBinaryDF()
-
 create_ratings_list('Rezepte.txt')
 
 
