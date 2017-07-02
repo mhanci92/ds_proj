@@ -144,20 +144,13 @@ def create_ratings_list(text_file):
 
 			# extract the rating and categorize it
 			rating = float(line[len(line)-1].strip().replace(',','.'))
-			if rating >= 0 and rating < 1 :
-				ratings.append(1)
-			elif rating >= 1 and rating < 2 :
-				ratings.append(2)
-			elif rating >= 2 and rating < 3 :
-				ratings.append(3)
-			elif rating >= 3 and rating < 4 :
-				ratings.append(4)
-			elif rating >= 4 and rating < 5 :
-				ratings.append(5)
+			ratings.append(np.ceil(rating))
 
 	ratingsNP = np.array(ratings)
-	np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
+	ratingsNP = pd.DataFrame(ratingsNP)
+	# np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
 	# print(ratingsNP.size)
+	ratingsNP.to_csv('ratingsNP.csv', sep = ',', encoding = 'utf-8')
 	
 	return ratingsNP
 	## return ratings_hash.values()
@@ -195,7 +188,7 @@ def createBinaryDF():
 #print(len(create_uniqueIngredients_list('Rezepte.txt')))
 #print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
 #create_recipe_hash('Rezepte.txt')
-#createBinaryDF()
+createBinaryDF()
 create_ratings_list('Rezepte.txt')
 
 
