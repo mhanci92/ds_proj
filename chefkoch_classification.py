@@ -18,9 +18,9 @@ from sklearn.model_selection import train_test_split
 
 
 # it creates and fits the given svc model (linear, rbf, poly, sigmoid kernels...). it also returns the score 
-def apply_svc():	
+def apply_svc(kern):	
 
-	svc = svm.SVC(kernel = 'linear', decision_function_shape='ovr').fit(x_train, y_train)
+	svc = svm.SVC(kernel = kern, decision_function_shape='ovr').fit(x_train, y_train)
 	return svc
 
 
@@ -28,7 +28,7 @@ def apply_svc():
 # predicts results of the given svc
 def predict_svc():
 
-	prediction = apply_svc().predict(x_validate)
+	prediction = svc.predict(x_validate)
 	return prediction
 
 
@@ -110,9 +110,9 @@ if __name__ == "__main__":
 	x_train, x_te, y_train, y_te = train_test_split(recipeMatrix, ratingsNP, test_size = 0.40, random_state = 42)
 	x_validate, x_test, y_validate, y_test = train_test_split(x_te,y_te, test_size = 0.50, random_state = 42)
 
-	linear_svc = apply_svc()
+	svc = apply_svc('linear')
 	prediction = predict_svc()
-	print_metrics(linear_svc)
+	print_metrics(svc)
 	# plot_confusion_matrix()
 	#plot_normalized_confusion_matrix()
 
