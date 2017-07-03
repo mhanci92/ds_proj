@@ -70,7 +70,7 @@ class ChefkochScraper(object):
 			cuisine = link.text.strip()
 
 			# If cuisine is equal to one of these, skip it and continue with the next cuisine in the list 
-			if cuisine != "China":
+			if cuisine != "Europa" and cuisine != "Asien":
 				continue
 
 			# Build the link for the category to scrape from
@@ -128,7 +128,7 @@ class ChefkochScraper(object):
 						row_string += "{}\t".format(recipe_title.text.strip())
 						row_string += "{}\t".format(cuisine)
 					else:
-						print("Couldn't find recipe title: " + recipe_title)
+						print("Couldn't find recipe title..")
 						print("Skipping row..")
 						row_string = "{}".format("\n")
 						continue		
@@ -140,7 +140,9 @@ class ChefkochScraper(object):
 						# leave out the average symbol at the beginning of the rating				
 						avg_rating = rating[1:]
 					except AttributeError:	
-						avg_rating = "0"
+						#avg_rating = "0"
+						self.reset_string(row_string)
+						continue
 
 
 					# Get the table which contains all the ingredients
