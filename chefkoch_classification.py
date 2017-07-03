@@ -5,7 +5,7 @@ Created on Tue Jun 20 10:27:15 2017
 @author: AnNa
 """
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 #from sklearn.decomposition import PCA
@@ -20,8 +20,7 @@ from sklearn.model_selection import train_test_split
 # it creates and fits the given svc model (linear, rbf, poly, sigmoid kernels...). it also returns the score 
 def apply_svc():	
 
-	svc = svm.SVC(kernel = "linear", decision_function_shape='ovr').fit(x_train, y_train)
-	print(svc.score(x_validate, y_validate))
+	svc = svm.SVC(kernel = 'linear', decision_function_shape='ovr').fit(x_train, y_train)
 	return svc
 
 
@@ -30,18 +29,50 @@ def apply_svc():
 def predict_svc():
 
 	prediction = apply_svc().predict(x_validate)
-
-	print(prediction)
-	print(y_validate)
-
 	return prediction
 
 
 # prints the classification report of the y-validation set and the prediction. this way you can assess the quality of the used model
-def print_metrics():
+def print_metrics(svc):
 
-	print(metrics.classification_report(y_validate,predict_svc()))
-	print(metrics.confusion_matrix(y_validate,predict_svc()))
+	print("The mean accuracy on given test data and labels: ")
+	print(svc.score(x_validate, y_validate))
+	print("The classification report looks like this: ")
+	print(metrics.classification_report(y_validate,prediction))
+	print ("The confusion matrix looks like this: " )
+	print(metrics.confusion_matrix(y_validate,prediction))
+	print("The normalized confusion matrix looks like this: ")
+	cm = metrics.confusion_matrix(y_validate,prediction)
+	norm_cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+	print(norm_cm)
+
+
+
+def plot_normalized_confusion_matrix():
+
+	cm = metrics.confusion_matrix(y_validate,prediction)
+	norm_cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+	print(norm_cm)
+	plt.imshow(norm_cm)
+	plt.title("Normalized Confusion Matrix")
+	plt.colorbar()
+	plt.ylabel('True label')
+	plt.xlabel('Predicted label')
+	plt.show()
+
+
+def plot_confusion_matrix():
+
+	cm = metrics.confusion_matrix(y_validate,predict_svc())	
+	print(cm)
+	plt.imshow(cm)
+	plt.title("Normalized Confusion Matrix")
+	plt.colorbar()
+	plt.ylabel('True label')
+	plt.xlabel('Predicted label')
+	plt.show()
+
+
 
 
 
@@ -79,7 +110,9 @@ if __name__ == "__main__":
 	x_train, x_te, y_train, y_te = train_test_split(recipeMatrix, ratingsNP, test_size = 0.40, random_state = 42)
 	x_validate, x_test, y_validate, y_test = train_test_split(x_te,y_te, test_size = 0.50, random_state = 42)
 
-	apply_svc()
-	predict_svc()
-	print_metrics()
+	linear_svc = apply_svc()
+	prediction = predict_svc()
+	print_metrics(linear_svc)
+	# plot_confusion_matrix()
+	#plot_normalized_confusion_matrix()
 
