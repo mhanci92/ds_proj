@@ -144,7 +144,11 @@ def create_ratings_list(text_file):
 
 			# extract the rating and categorize it
 			rating = float(line[len(line)-1].strip().replace(',','.'))
-			ratings.append(np.ceil(rating))
+			#ratings.append(np.ceil(rating))
+			if rating < 4.73:
+				ratings.append(0)
+			else:
+				ratings.append(1)
 
 	ratingsNP = np.array(ratings)
 	# ratingsNP = pd.DataFrame(ratingsNP)

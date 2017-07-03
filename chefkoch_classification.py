@@ -76,10 +76,10 @@ def print_metrics(kernel):
 
 
 if __name__ == "__main__":
-	recipeMatrix = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8')
+	recipeMatrix = pd.read_csv('recipeMatrix.csv', encoding = 'utf-8', header = None)
 	ratingsNP = np.loadtxt('ratingsNP.csv')
 	x_train, x_te, y_train, y_te = train_test_split(recipeMatrix, ratingsNP, test_size = 0.40, random_state = 42)
-	x_validate, x_test, y_validate, y_test = train_test_split(x_te,y_te, test_size = 0.20, random_state = 42)
+	x_validate, x_test, y_validate, y_test = train_test_split(x_te,y_te, test_size = 0.50, random_state = 42)
 
 	apply_svc('linear')
 	predict_svc('linear')
