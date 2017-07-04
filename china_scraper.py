@@ -8,10 +8,7 @@ class ChefkochScraper(object):
 
 	def __init__(self):
 		self.next_links = []
-		# a list with all (not unique) ingredients		
 		self.zutaten = []
-		# hashmap (dictionary) of recipe names (keys) and corresponding ingredient sets (values).
-		# it s going to be filled up in the menueart_scraper() function
 		self.recipeHash = collections.OrderedDict()
 		self.baseUrl = "http://www.chefkoch.de"
 		self.receptsUrl = "http://www.chefkoch.de/rezepte/"		
@@ -26,7 +23,6 @@ class ChefkochScraper(object):
 		driver = webdriver.PhantomJS(executable_path=r'/Users/martinhanci/Documents/Web-Scraping/phantomjs-2.1.1-macosx/bin/phantomjs')
 		return driver	
 
-	# Simple Method that is supposed to combine the baseUrl with a href suffix of the second parameter
 	def build_link(self, baseUrl, link_to_get_href_from):
 		href = link_to_get_href_from['href']
 		return self.baseUrl + href	
@@ -60,23 +56,19 @@ class ChefkochScraper(object):
 
 		recepts_file = self.create_file("Rezepte")
 
-		temp_value = 0
 		# Loop through the all the categories of Menueart
 		for link in menuart_links:
 
 			row_string = ''
 
-			# Get the name of the menuart category that we will get recipes from
 			cuisine = link.text.strip()
 
-			# If cuisine is equal to one of these, skip it and continue with the next cuisine in the list 
-			if cuisine != "Europa" and cuisine != "Asien":
+			if cuisine == None or cuisine != "Europa":
 				continue
 
 			# Build the link for the category to scrape from
 			url = self.build_link(self.baseUrl, link)
 
-			# Initialize a soup object based on the content from the link
 			soup = BeautifulSoup(self.get_page_source(url, driver), 'lxml')
 
 			a_sort_acc_date = soup.find('a', class_='searchresult-sorting-by-date')
@@ -88,7 +80,6 @@ class ChefkochScraper(object):
 			search_list = soup.find('ul', class_='search-list')
 
 			if search_list != None:
-				# Find all the items that the previously found list contains
 				search_list_items = search_list.find_all('li', class_='search-list-item')			
 			else:
 				continue
@@ -97,9 +88,9 @@ class ChefkochScraper(object):
 			self.next_links.append(weiter_a_link)
 			loop_counter = 0
 
-			while self.next_links[0] != None:
+			while self.next_links[0] != None and len(self.next_links) != 0:
 				if loop_counter > 0:	
-					weiter = self.build_link(self.baseUrl, weiter_a_link[0])
+					weiter = self.build_link(self.baseUrl, self.next_links[0][0])
 					soup2 = BeautifulSoup(self.get_page_source(weiter, driver), 'lxml')
 					search_list_items = soup2.find_all('li', class_='search-list-item')
 					weiter_a_link = soup2.select('a.ck-pagination__link.ck-pagination__link-prevnext.ck-pagination__link-prevnext--next.qa-pagination-next')
@@ -107,21 +98,20 @@ class ChefkochScraper(object):
 				loop_counter += 1								
 
 				# Now loop through the list of items and scrape data from every single recipe
-				for idx, recipe in enumerate(search_list_items):
+				for recipe in search_list_items:
 
 					recipe_a_link = recipe.findChild('a')
 
 					if recipe_a_link != None:
 						full_url_to_recipe = self.build_link(self.baseUrl, recipe_a_link)
 					else:
-						row_string = "{}".format("\n")
+						self.reset_string(row_string)
 						continue	
 
 					soup2 = BeautifulSoup(self.get_page_source(full_url_to_recipe+two_meals, driver), 'lxml')
 
 					### Start scraping information from the current recipe ###
 
-					# Get the title of the recipe
 					recipe_title = soup2.find('h1', class_='page-title')
 
 					if recipe_title != None:
@@ -130,7 +120,7 @@ class ChefkochScraper(object):
 					else:
 						print("Couldn't find recipe title..")
 						print("Skipping row..")
-						row_string = "{}".format("\n")
+						self.reset_string(row_string)
 						continue		
 
 					# get the average rating for each recipe
@@ -139,8 +129,8 @@ class ChefkochScraper(object):
 						rating = soup2.find('span', class_='rating__average-rating').text.strip()
 						# leave out the average symbol at the beginning of the rating				
 						avg_rating = rating[1:]
-					except AttributeError:	
-						#avg_rating = "0"
+					except:
+						print("Error while trying to access rating value of the recipe..")	
 						self.reset_string(row_string)
 						continue
 
@@ -150,10 +140,12 @@ class ChefkochScraper(object):
 
 					if not zutaten_table:
 						print("zutaten_table is empty!")
+						self.reset_string(row_string)
 						continue
 
 					if zutaten_table == None:
 						print("zutataten_table is could not be found or is not existing!")
+						self.reset_string(row_string)						
 						continue
 
 					zutaten_string = ''
@@ -184,20 +176,14 @@ class ChefkochScraper(object):
 						inTheRecipe = zutaten_string.split("\t")
 						
 					# adds the ingredients of the new recipe to the general list of ingredients
-					self.zutaten
 					self.zutaten.extend(inTheRecipe)
 
 					row_string += "{}".format(zutaten_string)
-
-					# transforms each recipe´s ingredients´ list into a set. we re going to use 
-					# this as a value in recipeHash
-					#recipeSet = set(inTheRecipe)
 
 					# add the rating after all ingredients
 					row_string += "{}\n".format(avg_rating)
 
 
-					#row_string += "\n"
 					# Write each recipe, row by row, into the previously created text file
 					recepts_file.write(row_string)
 					self.reset_string(row_string)
