@@ -36,7 +36,7 @@ class ChefkochScraper(object):
 	def menueart_scraper(self):
 		driver = self.initialize_driver()
 
-		two_meals = '?portionen=2'
+		#two_meals = '?portionen=2'
 
 		soup = BeautifulSoup(self.get_page_source(self.receptsUrl, driver), 'lxml')
 
@@ -95,7 +95,8 @@ class ChefkochScraper(object):
 					search_list_items = soup2.find_all('li', class_='search-list-item')
 					weiter_a_link = soup2.select('a.ck-pagination__link.ck-pagination__link-prevnext.ck-pagination__link-prevnext--next.qa-pagination-next')
 					self.next_links[0] = weiter_a_link
-				loop_counter += 1								
+				loop_counter += 1
+				print("loop counter at: " + str(loop_counter))								
 
 				# Now loop through the list of items and scrape data from every single recipe
 				for recipe in search_list_items:
@@ -105,22 +106,22 @@ class ChefkochScraper(object):
 					if recipe_a_link != None:
 						full_url_to_recipe = self.build_link(self.baseUrl, recipe_a_link)
 					else:
-						self.reset_string(row_string)
+						row_string = "\n"
 						continue	
 
-					soup2 = BeautifulSoup(self.get_page_source(full_url_to_recipe+two_meals, driver), 'lxml')
+					soup2 = BeautifulSoup(self.get_page_source(full_url_to_recipe, driver), 'lxml')
 
 					### Start scraping information from the current recipe ###
 
 					recipe_title = soup2.find('h1', class_='page-title')
 
 					if recipe_title != None:
+						row_string += "{}\t".format(cuisine)						
 						row_string += "{}\t".format(recipe_title.text.strip())
-						row_string += "{}\t".format(cuisine)
 					else:
 						print("Couldn't find recipe title..")
 						print("Skipping row..")
-						self.reset_string(row_string)
+						row_string = "\n"
 						continue		
 
 					# get the average rating for each recipe
@@ -131,7 +132,7 @@ class ChefkochScraper(object):
 						avg_rating = rating[1:]
 					except:
 						print("Error while trying to access rating value of the recipe..")	
-						self.reset_string(row_string)
+						row_string = "\n"
 						continue
 
 
@@ -140,12 +141,12 @@ class ChefkochScraper(object):
 
 					if not zutaten_table:
 						print("zutaten_table is empty!")
-						self.reset_string(row_string)
+						row_string = "\n"						
 						continue
 
 					if zutaten_table == None:
 						print("zutataten_table is could not be found or is not existing!")
-						self.reset_string(row_string)						
+						row_string = "\n"												
 						continue
 
 					zutaten_string = ''
