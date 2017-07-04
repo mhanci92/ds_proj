@@ -28,10 +28,7 @@ class ChefkochScraper(object):
 		return self.baseUrl + href	
 
 	def create_file(self, file_name):
-		return open(file_name + ".txt", "w")
-
-	def reset_string(self, string_to_reset):
-		string_to_reset = ''	
+		return open(file_name + ".txt", "w")	
 
 	def menueart_scraper(self):
 		driver = self.initialize_driver()
@@ -63,7 +60,7 @@ class ChefkochScraper(object):
 
 			cuisine = link.text.strip()
 
-			if cuisine == None or cuisine != "Europa":
+			if cuisine == None or cuisine != "Asien":
 				continue
 
 			# Build the link for the category to scrape from
@@ -187,7 +184,7 @@ class ChefkochScraper(object):
 
 					# Write each recipe, row by row, into the previously created text file
 					recepts_file.write(row_string)
-					self.reset_string(row_string)
+					row_string = ""
 					print(str(recipe_title.text.strip()) + " added to the text file!")
 
 			recepts_file.close()
