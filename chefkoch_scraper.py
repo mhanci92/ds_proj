@@ -88,8 +88,7 @@ def menueart_scraper():
 			recepts_file.write(row_string)
 			reset_string(row_string)
 			print(str(recipe_title.text.strip()) + " added to the text file!")
-			sleep_for = randint(3,10)
-			sleep(sleep_for)
+			
 
 
 	recepts_file.close()			
@@ -99,13 +98,18 @@ def menueart_scraper():
 
 # this creates a list of all unique ingredients from the txt file
 def create_uniqueIngredients_list(text_file):
-    with open(text_file, 'r') as tFile:
+    with open(text_file, 'r', encoding = 'utf-8') as tFile:
         reader = csv.reader(tFile, dialect = 'excel-tab')
         recipe_ingredients = []
         for line in reader:
         	recipe_ingredients.extend(create_recipeIngredients_list(line))
     unique_ingredients = list(set(recipe_ingredients))
     #print(str(unique_ingredients))
+
+    with open("uniqueIngr.csv", "w", encoding = 'utf-8') as output:
+    	w = csv.writer(output, delimiter = ',' )
+    	w.writerow(unique_ingredients)
+   
     return unique_ingredients
 
 
@@ -123,7 +127,7 @@ def create_recipeIngredients_list(row):
 # it creates a hashmap (ordered dictionary) of all recipe names (keys) and corresponding ingredients list (values)
 # out of the txt file
 def create_recipe_hash(text_file):
-    with open(text_file, 'r') as tFile:
+    with open(text_file, 'r', encoding = 'utf-8') as tFile:
         reader = csv.reader(tFile, dialect='excel-tab')
         recipe_hash = collections.OrderedDict()
         for line in reader:
@@ -137,23 +141,22 @@ def create_recipe_hash(text_file):
 # it creates an ordered list of ratings (same order as recipes). these are categorized according to rating classes, 
 # so if a rating is between 2 and 3, it belongs to class 3 and so on. this is returned as a pandas dataframe and saved to a csv.
 def create_ratings_list(text_file):
-	with open(text_file, 'r') as tFile:
+	with open(text_file, 'r', encoding = 'utf-8') as tFile:
 		reader = csv.reader(tFile, dialect ='excel-tab')
 		ratings = []
+		zähler = 0
 		for line in reader:
 
 			# extract the rating and categorize it
 			rating = float(line[len(line)-1].strip().replace(',','.'))
-			#ratings.append(np.ceil(rating))
-			if rating < 4.73:
-				ratings.append(0)
-			else:
-				ratings.append(1)
+			ratings.append(np.ceil(rating))
+			zähler += 1
+			print("The rating has been saved" + str(zähler))
 
 	ratingsNP = np.array(ratings)
 	# ratingsNP = pd.DataFrame(ratingsNP)
 	np.savetxt('ratingsNP.csv', ratingsNP, delimiter = ',')
-	# print(ratingsNP.size)
+		# print(ratingsNP.size)
 	# ratingsNP.to_csv('ratingsNP.csv', sep = ',', encoding = 'utf-8', index = False)
 	
 	return ratingsNP
@@ -178,6 +181,7 @@ def createBinaryDF():
 				recipeBinary[list(recipe_hash)[recipe_idx]].append(1)
 			else:
 				recipeBinary[list(recipe_hash)[recipe_idx]].append(0)
+		print("The recipe has been added")
 
 	# create a pandas dataframe object out of the recipes´ hashmap
 	recipeDF = pd.DataFrame.from_dict(recipeBinary,orient='index')
@@ -188,12 +192,16 @@ def createBinaryDF():
 	return recipeDF
 
 
+
 #menueart_scraper()
 #print(len(create_uniqueIngredients_list('Rezepte.txt')))
 #print(str(create_recipeIngredients_list(create_uniqueIngredients_list('Rezepte.txt'))))
 #create_recipe_hash('Rezepte.txt')
-createBinaryDF()
-create_ratings_list('Rezepte.txt')
+#createBinaryDF()
+#create_ratings_list('Rezepte.txt')
+create_uniqueIngredients_list('Rezepte.txt')
+
+
 
 
 
